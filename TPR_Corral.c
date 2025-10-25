@@ -1,6 +1,6 @@
 /* 
 SANTIAGO CORRAL - TP REGULARIZADOR, ELECTRONICA DIGITAL II - 2C 2025
-"PIANO"
+"PIANO" :)
 */
 
 // Direcciones base para la memoria SRAM (Stack Inicial) //
@@ -564,3 +564,16 @@ int main(void)
 
 	return 0;
 }
+
+/* 
+Por ultimo, se conecto en la salida un filtro pasa bajos RC. Se probaron dos frecuencias de corte diferentes, dadas por
+fc = 1 / (2 * pi * R * C)
+
+Primero se eligieron valores de R = 820 ohm y c = 100 nf, dando una fc = 1.94 KHz aprox. Con esta disposición se podia apreciar
+muy claramente la frecuencia fundamental de 1 KHz, pero las frecuencias armónicas (2KHz, 4KHz, 8KHz) se atenuaban considerablemente, 
+perdiendo presencia en la señal. Sin enmargo, se pudo verificar claramente el correcto funcionamiento del proyecto.
+
+Luego se eligio una frecuencia de corte mas alta con R = 80 ohm y C = 100 nf, dando una fc = 19.9 KHz aprox. Con esta nueva configuración 
+se pudo apreciar mucho mejor las frecuencias armónicas, obteniendo una igual amplitud en todas las frecuencias,  
+aunque con un poco mas de ruido de alta frecuencia.
+*/

@@ -310,7 +310,6 @@ void handler_tim2(void)
 // One cycle first order sigma delta sin signal
 
 
-
 uint32_t data[256];
 
 

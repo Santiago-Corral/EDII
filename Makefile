@@ -1,4 +1,4 @@
-TARGET ?= piano2
+TARGET ?= E3_G4_8_BotonDMA
 SRCS = $(TARGET).c
 
 OBJS =  $(addsuffix .o, $(basename $(SRCS)))

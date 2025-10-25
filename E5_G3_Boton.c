@@ -30,8 +30,8 @@ int main(void)
     RCC_APB2ENR |= (1 << 4);  // GPIOC
 
     // 2. Configurar PC13 como salida push-pull 2 MHz
-    GPIOC_CRH &= ~(0xF << 20);
-    GPIOC_CRH |=  (0x2 << 20);
+    GPIOC_CRH &= ~(0xF << 20); //Limpiamos pin 13
+    GPIOC_CRH |=  (0x2 << 20); //Salida push-pull, 2Mhz
 
     // 3. Configurar PA0 como entrada con pull-up/pull-down
     GPIOA_CRL &= ~(0xF << 0);
@@ -41,16 +41,24 @@ int main(void)
     GPIOA_ODR &= ~(1 << 0);
 
     // 5. Bucle principal
-    while (1)
-    {
-        if ( (GPIOA_IDR & (1 << 0)) != 0 ) {
-            // Cable conectado a 3.3V → LED encendido (PC13=0)
-            GPIOC_ODR &= ~(1 << 13);
-        } else {
-            // Sin cable → LED apagado (PC13=1)
-            GPIOC_ODR |= (1 << 13);
-        }
+    for(;;){
+    if (GPIOA_IDR & (1 << 0)) {   // PA0 = 1 (3.3V) -> LED ON
+        GPIOC_ODR &= ~(1 << 13);
+    } else {                      // PA0 = 0 (pull-down) -> LED OFF
+        GPIOC_ODR |=  (1 << 13);
     }
+}
 
     return 0;
 }
+
+// Vector de interrupciones
+#define SRAM_SIZE ((uint32_t) 0x00005000)
+#define SRAM_BASE ((uint32_t) 0x20000000)
+#define STACKINIT ((interrupt_t)(SRAM_BASE+SRAM_SIZE))
+
+typedef void(*interrupt_t)(void);
+const interrupt_t vector_table[256] __attribute__ ((section(".vtab"))) = {
+    STACKINIT,                // 0x0000_0000 Stack Pointer
+    (interrupt_t) main,       // 0x0000_0004 Reset
+};

@@ -1,27 +1,3 @@
-// vi: ts=4 shiftwidth=4
-//
-// Author(s):
-//   Miguel Angel Sagreras
-//
-// Copyright (C) 2021
-//   Miguel Angel Sagreras
-//
-// This source file may be used and distributed without restriction provided
-// that this copyright statement is not removed from the file and that any
-// derivative work contains  the original copyright notice and the associated
-// disclaimer.
-//
-// This source file is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This source is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// more details at http://www.gnu.org/licenses/.
-//
-
 #define SRAM_SIZE       ((uint32_t) 0x00005000)
 #define SRAM_BASE       ((uint32_t) 0x20000000)
 #define STACKINIT       ((interrupt_t)(SRAM_BASE+SRAM_SIZE))
@@ -43,7 +19,8 @@ typedef union {
 
 typedef word_t page[0x400/sizeof(uint32_t)];
 
-// Memory map
+// Memory map - Dejo las declaraciones de las direcciónes iguales a lo usados en el código "DMA", junto al Devmap.
+// Se podrian limpiar ya que muchas no se usan en este ejercicio.
 
 enum {TIM2  = 0, TIM3  = 1, TIM4  = 2 };
 enum {GPIOA = 0, GPIOB = 1, GPIOC = 2, GPIOD = 3, GPIOE = 4, GPIOF = 5 };
@@ -197,11 +174,6 @@ struct {
     } FLASH;
 } volatile *const DEVMAP = (void *) 0x40000000;
 
-// --- (Macros NVIC y CTX se dejan, pero ya NO se usan) ---
-#define ENA_IRQ(IRQ) {CTX->NVIC.REGs.ISER[((uint32_t)(IRQ) >> 5)] = (1 << ((uint32_t)(IRQ) & 0x1F));}
-#define DIS_IRQ(IRQ) {CTX->NVIC.REGs.ICER[((uint32_t)(IRQ) >> 5)] = (1 << ((uint32_t)(IRQ) & 0x1F));}
-#define CLR_IRQ(IRQ) {CTX->NVIC.REGs.ICPR[((uint32_t)(IRQ) >> 5)] = (1 << ((uint32_t)(IRQ) & 0x1F));}
-
 struct {
     word_t reversed0[(0xe000e010-0xe0000000)/sizeof(word_t)];
     union {
@@ -250,68 +222,44 @@ const interrupt_t vector_table[] __attribute__ ((section(".vtab"))) = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-// One cycle first order sigma delta sin signal (SE MANTIENE IGUAL)
-uint32_t const data[256] = {
-    0x00000000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00002000, 0x00000000,
-    0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00000000,
-    0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00002000, 0x00000000, 0x00002000,
-    0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00000000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00000000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00000000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000,
-    0x00002000, 0x00002000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00002000,
-    0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000,
-    0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00000000,
-    0x00002000, 0x00000000, 0x00002000, 0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00002000,
-    0x00000000, 0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00000000,
-    0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000,
-    0x00002000, 0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00002000,
-    0x00000000, 0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00002000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00002000, 0x00000000,
-    0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00000000, 0x00002000, 0x00000000,
-    0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00002000,
-    0x00000000, 0x00000000, 0x00002000, 0x00000000, 0x00002000, 0x00000000, 0x00002000, 0x00000000};
+//Matriz de datos a transferir por DMA, 256 valores de 32 bits, reproducimos 1 ciclo por segundo "256 ticks de reloj"
+uint32_t data[256];
 
 int main(void)
 {
+    //Generamos la matriz "mitad-mitad" de 32 bits, representando una señal cuadrada de ceros y unos
+    for (int i = 0; i < 256/2; i++){
+    data[i] = 0x00002000;
+    }
+
+    for (int i = 256/2; i < 256; i++){
+    data[i] = 0x00000000;
+    }
+
     // PCLK code
-    DEVMAP->RCC.REGs.CR   |= (1 << 16);                      // Enable HSE
-    while (!(DEVMAP->RCC.REGs.CR & (1 << 17)));              // Wait for HSE is locked
+    DEVMAP->RCC.REGs.CR   |= (1 << 16);                      // Habilito HSE
+    while (!(DEVMAP->RCC.REGs.CR & (1 << 17)));              // Espero a que HSE esté listo
 
     DEVMAP->RCC.REGs.CR   &= ~(1 << 24);                     // Disable PLL
     DEVMAP->RCC.REGs.CFGR |= (0b0111 << 18);                 // PLL x9 -> 72 MHz
-    DEVMAP->RCC.REGs.CFGR |=  (1 << 16);                     // HSE as PLL source
+    DEVMAP->RCC.REGs.CFGR |=  (1 << 16);                     // PLL source = HSE
     DEVMAP->RCC.REGs.CR   |=  (1 << 24);                     // Enable PLL
-    while (!(DEVMAP->RCC.REGs.CR & (1 << 25)));              // Wait PLL lock
+    while (!(DEVMAP->RCC.REGs.CR & (1 << 25)));              // Espero a que PLL esté listo
 
     DEVMAP->FLASH.REGs.ACR |= (0b010 << 0);                  // FLASH WS = 2
     DEVMAP->RCC.REGs.CFGR  |= (0b0000 << 4);                 // AHB presc = /1 (72 MHz)
     DEVMAP->RCC.REGs.CFGR  |= (0b100  << 8);                 // APB1 presc = /2 (36 MHz)
 
     DEVMAP->RCC.REGs.CFGR |= (0b10 << 0);                    // SYSCLK = PLL
-    while (!(DEVMAP->RCC.REGs.CFGR & (0b10 << 2)));          // Wait PLL selected
+    while (!(DEVMAP->RCC.REGs.CFGR & (0b10 << 2)));          // Espero a que SYSCLK esté en PLL
 
     // DMA code
     DEVMAP->RCC.REGs.APB2ENR |= (1 << 4);                    // Enable GPIOC clock
     DEVMAP->RCC.REGs.APB1ENR |= (1 << 0);                    // Enable TIM2 clock
     DEVMAP->RCC.REGs.AHBENR  |= (1 << 0);                    // Enable DMA1 clock
 
-    DEVMAP->GPIOs[GPIOC].REGs.CRL  = 0x33333333;             // Make low GPIOC output
-    DEVMAP->GPIOs[GPIOC].REGs.CRH  = 0x33333333;             // Make high GPIOC output
-//  DEVMAP->GPIOs[GPIOC].REGs.ODR ^= -1;
+    DEVMAP->GPIOs[GPIOC].REGs.CRL  = 0x33333333;             // Bajo GPIOC output
+    DEVMAP->GPIOs[GPIOC].REGs.CRH  = 0x33333333;             // Alto GPIOC output
 
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CNDTR = sizeof(data)/sizeof(uint32_t); // Transfer size
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CMAR  = (uint32_t) data;               // Memory source
@@ -326,18 +274,15 @@ int main(void)
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CCR &= ~(1 << 6);      // PINC=0
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CCR |=  (1 << 5);      // CIRC=1
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CCR |=  (1 << 4);      // DIR=1 (read from memory)
-    // (INTERRUPCIONES REMOVIDAS) No HTIE/TCIE, no ENA_IRQ
 
     DEVMAP->DMAs[DMA1].REGs.CHN[CHN2].CCR |= (1 << 0);       // Enable DMA
 
     // TIM2
     DEVMAP->TIMs[TIM2].REGs.CR1  = 0x0000;                   // Reset CR1
-//  DEVMAP->TIMs[TIM2].REGs.CR1  |= (1 << 4);                 // Down counter mode (opcional)
     DEVMAP->TIMs[TIM2].REGs.PSC   = (72e6/8)/(sizeof(data)/sizeof(data[0]))-1; // fCK_PSC/(PSC+1)
     DEVMAP->TIMs[TIM2].REGs.ARR   = 8-1;
-    DEVMAP->TIMs[TIM2].REGs.DIER |= (1 << 14);               // TDE (Trigger DMA request enable)
+    DEVMAP->TIMs[TIM2].REGs.DIER |= (1 << 14);               // TDE (Establece DMA request on update)
     DEVMAP->TIMs[TIM2].REGs.DIER |= (1 <<  8);               // UDE (Update DMA request enable)
-    // (INTERRUPCIONES REMOVIDAS) No UIE/CCIE, no NVIC
 
     DEVMAP->TIMs[TIM2].REGs.CR1  |= (1 << 0);                // Enable TIM2
 
